@@ -10,7 +10,7 @@ class ReadyListener extends Listener {
     }
 
     exec() {
-        console.log("Tranquil is ready.");
+        console.log("Trident is ready.");
     }
 }
 

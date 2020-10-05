@@ -1,7 +1,7 @@
 import { AkairoClient, CommandHandler, ListenerHandler } from "discord-akairo";
 import { Message } from "discord.js";
 import { config } from "dotenv";
-config({ path: "../.env" });
+config({ path: ".env" });
 
 class TridentClient extends AkairoClient {
     commandHandler: CommandHandler
@@ -10,7 +10,7 @@ class TridentClient extends AkairoClient {
     constructor() {
         super({ ownerID: "175610330217447424" }, { disableMentions: "everyone" });
         this.commandHandler = new CommandHandler(this, {
-            directory: "./commands/",
+            directory: "./src/commands/",
             prefix: "&",
             argumentDefaults: {
                 prompt: {
@@ -27,7 +27,7 @@ class TridentClient extends AkairoClient {
         })
 
         this.listenerHandler = new ListenerHandler(this, {
-            directory: "./listeners/"
+            directory: "./src/listeners/"
         })
 
         this.commandHandler.loadAll();

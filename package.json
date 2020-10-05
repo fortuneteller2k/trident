@@ -4,7 +4,8 @@
   "description": "A TypeScript discord bot using discord-akairo and discord.js",
   "main": "./src/trident.ts",
   "scripts": {
-    "test": "npm test"
+    "test": "nodemon src/trident.ts",
+    "run": "node src/trident.ts"
   },
   "repository": {
     "type": "git",
