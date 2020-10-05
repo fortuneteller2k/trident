@@ -1,0 +1,35 @@
+Info 0    [22:32:6.639] Starting TS Server
+Info 1    [22:32:6.642] Version: 4.0.3
+Info 2    [22:32:6.642] Arguments: /usr/bin/node /home/shadow/trident/node_modules/.bin/tsserver --logFile /home/shadow/trident/.log/tsserver.log --logVerbosity info --cancellationPipeName /tmp/376396369f136baec7ad62136c0096f9/tscancellation*
+Info 3    [22:32:6.642] Platform: linux NodeVersion: 14 CaseSensitive: true
+Info 4    [22:32:6.642] ServerMode: undefined syntaxOnly: false hasUnknownServerMode: undefined
+Info 5    [22:32:6.679] Search path: /home/shadow/trident/src
+Info 6    [22:32:6.682] For info: /home/shadow/trident/src/trident.ts :: Config file name: /home/shadow/trident/tsconfig.json
+Info 7    [22:32:6.682] Opened configuration file /home/shadow/trident/tsconfig.json
+Info 8    [22:32:6.726] Config: /home/shadow/trident/tsconfig.json : {
+ "rootNames": [
+  "/home/shadow/trident/src/trident.ts",
+  "/home/shadow/trident/src/commands/about.ts",
+  "/home/shadow/trident/src/listeners/ready.ts"
+ ],
+ "options": {
+  "target": 2,
+  "moduleResolution": 2,
+  "configFilePath": "/home/shadow/trident/tsconfig.json"
+ }
+}
+Info 9    [22:32:6.853] Starting updateGraphWorker: Project: /home/shadow/trident/tsconfig.json
+Info 10   [22:32:12.230] Finishing updateGraphWorker: Project: /home/shadow/trident/tsconfig.json Version: 1 structureChanged: true Elapsed: 5374ms
+Info 11   [22:32:12.230] Project '/home/shadow/trident/tsconfig.json' (Configured)
+Info 12   [22:32:12.231] 	Files (86)
+
+Info 13   [22:32:12.231] -----------------------------------------------
+Info 14   [22:32:12.272] Starting updateGraphWorker: Project: /dev/null/autoImportProviderProject1*
+Info 15   [22:32:12.908] Finishing updateGraphWorker: Project: /dev/null/autoImportProviderProject1* Version: 1 structureChanged: true Elapsed: 633ms
+Info 16   [22:32:12.908] Project '/dev/null/autoImportProviderProject1*' (AutoImportProvider)
+Info 17   [22:32:12.908] 	Files (1)
+
+Info 18   [22:32:12.908] -----------------------------------------------
+Info 19   [22:32:14.113] DirectoryWatcher:: Triggered with /home/shadow/trident/.log/ti-204364.log 0:: WatchInfo: /home/shadow/trident 1 undefined Project: /home/shadow/trident/tsconfig.json WatchType: Wild card directory
+Info 20   [22:32:14.114] Project: /home/shadow/trident/tsconfig.json Detected file add/remove of non supported extension: /home/shadow/trident/.log/ti-204364.log
+Info 21   [22:32:14.114] Elapsed:: 1ms DirectoryWatcher:: Triggered with /home/shadow/trident/.log/ti-204364.log 0:: WatchInfo: /home/shadow/trident 1 undefined Project: /home/shadow/trident/tsconfig.json WatchType: Wild card directory
