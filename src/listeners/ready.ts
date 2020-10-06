@@ -1,17 +1,15 @@
 import { Listener } from "discord-akairo";
 
-class ReadyListener extends Listener {
-    constructor() {
+export class ReadyListener extends Listener {
+    public constructor() {
         super("ready", {
             emitter: "client",
             event: "ready",
             type: "on"
-        })
+        });
     }
 
-    exec() {
+    public async exec() {
         console.log("Trident is ready.");
     }
 }
-
-module.exports = ReadyListener;

@@ -20,8 +20,10 @@ class TridentClient extends AkairoClient {
                     retries: 2,
                     time: 20000,
                     timeout: (msg: Message) => `${msg.author}, timed out.`,
-                    modifyRetry: (msg: Message, text: String) => text && `${msg.author}, ${text}\n\nType \"abort\" to abort command.`,
-                    modifyStart: (msg: Message, text: String) => text && `${msg.author}, ${text}\n\nType \"abort\" to abort command.`,
+                    modifyRetry: (msg: Message, text: String) => 
+                        text && `${msg.author}, ${text}\nType \"${this.commandHandler.argumentDefaults.prompt.cancelWord}\" to abort command.`,
+                    modifyStart: (msg: Message, text: String) => 
+                        text && `${msg.author}, ${text}\nType \"${this.commandHandler.argumentDefaults.prompt.cancelWord}\" to abort command.`,
                 }
             }
         })

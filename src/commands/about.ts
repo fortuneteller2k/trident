@@ -2,12 +2,12 @@ import { Command } from "discord-akairo";
 import { Message, MessageEmbed } from "discord.js";
 import { VERSION } from "../trident";
 
-class AboutCommand extends Command {
-    constructor() {
+export class AboutCommand extends Command {
+    public constructor() {
         super("about", { aliases: ["about"] });
     }
 
-    exec(msg: Message) {
+    public async exec(msg: Message) {
         let selfUser = msg.client.user;
         let embed = new MessageEmbed();
         embed.setTitle("Trident")
@@ -19,5 +19,3 @@ class AboutCommand extends Command {
         return msg.reply(embed);
     }
 }
-
-module.exports = AboutCommand
