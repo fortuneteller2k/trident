@@ -1,7 +1,7 @@
 import { Command } from "discord-akairo";
 import { ClientUser, Message } from "discord.js";
 
-export class StatusCommand extends Command {
+export default class StatusCommand extends Command {
     public constructor() {
         super("status", { 
             aliases: ["status"],
@@ -18,7 +18,7 @@ export class StatusCommand extends Command {
         })
     }
 
-    public async exec(msg: Message, { status }) {
+    public async exec(msg: Message, status: String) {
         const selfUser: ClientUser = msg.client.user;
 
         switch (status) {

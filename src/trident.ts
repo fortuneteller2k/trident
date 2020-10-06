@@ -3,7 +3,7 @@ import { Message } from "discord.js";
 import { config } from "dotenv";
 config({ path: ".env" });
 
-class TridentClient extends AkairoClient {
+export default class TridentClient extends AkairoClient {
     commandHandler: CommandHandler
     listenerHandler: ListenerHandler
 

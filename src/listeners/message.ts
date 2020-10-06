@@ -1,7 +1,7 @@
 import { Listener } from "discord-akairo";
 import { Message, Guild, User } from "discord.js";
 
-export class MessageListener extends Listener {
+export default class MessageListener extends Listener {
     public constructor() {
         super("message", {
             emitter: "client",

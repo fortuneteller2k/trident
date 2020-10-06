@@ -2,7 +2,7 @@ import { Command } from "discord-akairo";
 import { Message, MessageEmbed } from "discord.js";
 import { VERSION } from "../trident";
 
-export class AboutCommand extends Command {
+export default class AboutCommand extends Command {
     public constructor() {
         super("about", { aliases: ["about"] });
     }

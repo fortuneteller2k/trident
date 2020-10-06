@@ -1,6 +1,6 @@
 import { Listener } from "discord-akairo";
 
-export class ReadyListener extends Listener {
+export default class ReadyListener extends Listener {
     public constructor() {
         super("ready", {
             emitter: "client",
