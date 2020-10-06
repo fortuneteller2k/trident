@@ -1,15 +1,18 @@
 import { Command } from "discord-akairo";
 import { Message, MessageEmbed } from "discord.js";
-import { VERSION } from "../trident";
+import { VERSION } from "../../trident";
 
 export default class AboutCommand extends Command {
     public constructor() {
-        super("about", { aliases: ["about"] });
+        super("about", { 
+            aliases: ["about"] ,
+            category: "utilities"
+        });
     }
 
-    public async exec(msg: Message) {
+    public exec = async (msg: Message) => {
         let selfUser = msg.client.user;
-        let embed = new MessageEmbed();
+        const embed = new MessageEmbed();
         embed.setTitle("Trident")
              .setImage(selfUser.avatarURL())
              .setURL("https://github.com/fortuneteller2k/trident")

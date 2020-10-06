@@ -9,7 +9,5 @@ export default class ReadyListener extends Listener {
         });
     }
 
-    public async exec() {
-        console.log("Trident is ready.");
-    }
+    public exec = async () => console.log("Trident is ready.");
 }

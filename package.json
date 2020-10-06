@@ -5,24 +5,28 @@
   "main": "./src/trident.ts",
   "scripts": {
     "test": "nodemon src/trident.ts",
-    "run": "node src/trident.ts"
+    "run": "ts-node src/trident.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fortuneteller2k/tranquil.git"
+    "url": "git+https://github.com/fortuneteller2k/trident.git"
   },
   "author": "fortuneteller2k",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fortuneteller2k/tranquil/issues"
+    "url": "https://github.com/fortuneteller2k/trident/issues"
   },
-  "homepage": "https://github.com/fortuneteller2k/tranquil#readme",
+  "homepage": "https://github.com/fortuneteller2k/trident#readme",
   "dependencies": {
+    "@lavacord/discord.js": "0.0.7",
     "@types/node": "^14.11.2",
     "discord-akairo": "^8.1.0",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "g": "^2.0.1",
+    "node-fetch": "^2.6.1",
+    "ts-node": "^9.0.0",
+    "tslint": "^6.1.3",
     "typescript": "^4.0.3"
   }
 }

@@ -10,7 +10,7 @@ export default class MessageListener extends Listener {
         });
     }
 
-    public async exec(msg: Message) {
+    public exec = async (msg: Message) => {
         const guild: Guild = msg.guild;
         const author: User = msg.author;
         console.log(`[${guild.name}] - <${author.username}#${author.discriminator}> - ${msg.cleanContent}`);
