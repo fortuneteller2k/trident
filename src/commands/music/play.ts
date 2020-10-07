@@ -96,7 +96,7 @@ export default class PlayCommand extends Command {
             const guildQueue = queue.get(msg.guild.id);
 
             const trackInfo = await ytdl.getInfo(query);
-            const track = new Track(trackInfo.title, trackInfo.video_url);
+            const track = new Track(trackInfo.videoDetails.title, trackInfo.videoDetails.video_url);
 
             if (!guildQueue) {
                 const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
@@ -119,7 +119,9 @@ export default class PlayCommand extends Command {
         }
 
         if (this.isURL(query)) {
-            return yt.search(query).then(videos => queryURL = videos[0].snippet.url).finally(() => postVerify());
+            const videos = await yt.search(query);
+            queryURL = `https://www.youtube.com/watch?v=${videos[0].id.videoId}`
+            return postVerify();
         } else {
             queryURL = queryURL;
             return postVerify();

@@ -16,7 +16,7 @@ export default class QueueCommand extends Command {
         const q = queue.get(msg.guild.id);
         q.tracks.forEach(track => embed.addField(`${(q.tracks.indexOf(track) + 1) == 1 
             ? "Now playing: " 
-            : q.tracks.indexOf(track) + 1} ${track.title}`, "", false));
+            : q.tracks.indexOf(track) + 1}`, `${track.title}`, false));
         return msg.reply(embed);
     }
 }
