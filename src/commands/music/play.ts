@@ -116,24 +116,15 @@ export default class PlayCommand extends Command {
             }
         } else {
             guildQueue.tracks.push(track);
-             return msg.reply(`**${track.title}** added to the queue.`);
+             return await msg.reply(`**${track.title}** added to the queue.`);
         }
     }
 
     public exec = async (msg: Message, { query }: { query: string }) => {
-        if (this.isURL(query)) return this.processTracks(msg, query);
+        if (this.isURL(query)) return await this.processTracks(msg, query);
         else {
-            const options: youtubeSearch.YouTubeSearchOptions = {
-                maxResults: 1,
-                key: process.env.API_KEY
-            };
-
-            await youtubeSearch(query, options, async (err, res) => {
-                if (err.message.startsWith("Error: Request failed with status code 403")) {
-                    const videos = await bYoutubeSearch.search(query);
-                    return this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`);
-                } else return this.processTracks(msg, `https://www.youtube.com/watch?v=${res[0].id}`);
-            });
+            const videos = await bYoutubeSearch.search(query);
+            return this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`);
         }
     }
 }
