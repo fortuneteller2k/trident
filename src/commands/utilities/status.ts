@@ -10,10 +10,7 @@ export default class StatusCommand extends Command {
             args: [{
                 id: "status",
                 type: "string",
-                match: "content",
-                prompt: {
-                    start: () => `Specify new status. (\`online\`, \`idle\`, \`invisible\`, \`dnd\`)`
-                }
+                match: "content"
             }]
         })
     }
