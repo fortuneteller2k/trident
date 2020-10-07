@@ -118,7 +118,7 @@ export default class PlayCommand extends Command {
             }
         }
 
-        if (this.isURL(query)) {
+        if (!this.isURL(query)) {
             const videos = await yt.search(query);
             queryURL = `https://www.youtube.com/watch?v=${videos[0].id.videoId}`
             return postVerify();
