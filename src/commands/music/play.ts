@@ -3,7 +3,7 @@ import { Guild } from "discord.js";
 import { StreamDispatcher } from "discord.js";
 import { Message, VoiceConnection, TextChannel, VoiceChannel } from "discord.js";
 import * as yt from "youtube-search-without-api-key";
-const ytdl = require("ytdl-core-discord");
+import ytdl from "ytdl-core-discord";
 
 export const queue: Map<string, QueueContract> = new Map();
 
@@ -88,43 +88,38 @@ export default class PlayCommand extends Command {
         return str.length < 2083 && url.test(str);
     }
 
-    public exec = async (msg: Message, { query }: { query: string }) => {
-        let queryURL: string;
+    postVerify = async (msg: Message, query: string) => {
+        const vc = msg.member.voice.channel;
+        const guildQueue = queue.get(msg.guild.id);
 
-        const postVerify = async () => {
-            const vc = msg.member.voice.channel;
-            const guildQueue = queue.get(msg.guild.id);
+        const trackInfo = await ytdl.getInfo(query);
+        const track = new Track(trackInfo.videoDetails.title, trackInfo.videoDetails.video_url);
 
-            const trackInfo = await ytdl.getInfo(query);
-            const track = new Track(trackInfo.videoDetails.title, trackInfo.videoDetails.video_url);
+        if (!guildQueue) {
+            const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
+            queue.set(msg.guild.id, queueContract);
 
-            if (!guildQueue) {
-                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
-                queue.set(msg.guild.id, queueContract);
+            queueContract.tracks.push(track);
 
-                queueContract.tracks.push(track);
-
-                try {
-                   const conn = await vc.join();
-                   queueContract.connection = conn;
-                    this.play(msg.guild, queueContract.tracks[0]);
-                } catch (e) {
-                   queue.delete(msg.guild.id);
-                  return msg.channel.send(e);
-                }
-            } else {
-                guildQueue.tracks.push(track);
-                return msg.reply(`**${track.title}** added to the queue.`);
+            try {
+               const conn = await vc.join();
+               queueContract.connection = conn;
+                this.play(msg.guild, queueContract.tracks[0]);
+            } catch (e) {
+               queue.delete(msg.guild.id);
+              return msg.channel.send(e);
             }
-        }
-
-        if (!this.isURL(query)) {
-            const videos = await yt.search(query);
-            queryURL = `https://www.youtube.com/watch?v=${videos[0].id.videoId}`
-            return postVerify();
         } else {
-            queryURL = queryURL;
-            return postVerify();
+            guildQueue.tracks.push(track);
+            return msg.reply(`**${track.title}** added to the queue.`);
+        }
+    }
+
+    public exec = (msg: Message, { query }: { query: string }) => {
+        if (this.isURL(query)) return this.postVerify(msg, query);
+        else {
+            const videos = yt.search(query);
+            return this.postVerify(msg, `https://www.youtube.com/watch?v=${videos[0].id.videoId}`);
         }
     }
 }
