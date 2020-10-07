@@ -67,7 +67,7 @@ export default class PlayCommand extends Command {
             return;
         }
 
-        const dispatcher = guildQueue.connection.play(await ytdl(track.url))
+        const dispatcher = guildQueue.connection.play(ytdl(track.url).catch(e => console.log(e)))
                                                 .on("finish", () => {
                                                     guildQueue.tracks.shift();
                                                     this.play(guild, guildQueue.tracks[0]);
