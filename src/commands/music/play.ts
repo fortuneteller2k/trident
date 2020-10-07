@@ -53,7 +53,7 @@ export default class PlayCommand extends Command {
             }
 
             const play = async (conn: VoiceConnection , url: string) => {
-                const dispatcher = conn.play(await ytdl(url), { type: "webm/opus" });
+                const dispatcher = conn.play(await ytdl(url), { type: "opus" });
                 dispatcher.on("finish", () => vc.leave());
             };
 
