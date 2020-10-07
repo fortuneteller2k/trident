@@ -1,12 +1,16 @@
 import { Command } from "discord-akairo";
+import { StreamDispatcher } from "discord.js";
 import { Message, VoiceConnection } from "discord.js";
 import http from "https";
 const ytdl = require("ytdl-core-discord");
 
+export const trackList: string[] = [];
+
 export default class PlayCommand extends Command {
     public constructor() {
         super("play", { 
-            aliases: ["p"],
+            aliases: ["p", "play"],
+            category: "music",
             args: [{
                 id: "query",
                 type: "string",
@@ -18,25 +22,9 @@ export default class PlayCommand extends Command {
         });
     }
 
-    /* TODO: make search function
-    public search = (query: string) => {
-        const options = {
-            hostname: `http://youtube-scrape.herokuapp.com/api/search?q=${query}&page=1`,
-            method: "GET"
-        };
-        let data;
-        const req = http.request(options, res => res.on("data", d => data = d));
-        req.on('error', error => console.error(error));
-        req.end();
-
-        const json = JSON.parse(data);
-        const url: string = json.results[1].video.url;
-        
-        return url;
-    }
-    */
-
     public exec = async (msg: Message, { query }: { query: string }) => {
+        let playing = false;
+
         if (msg.channel.type === "dm") return;
         const vc = msg.member.voice.channel;
 
@@ -44,8 +32,17 @@ export default class PlayCommand extends Command {
             return msg.reply("Join a VC first!");
         } else {
             const play = async (conn: VoiceConnection , url: string) => {
-                const dispatcher = conn.play(await ytdl(url), { type: "opus" });
-                dispatcher.on("finish", () => vc.leave());
+                let dispatcher: StreamDispatcher;
+                if (playing) {
+                    trackList.push(url);
+                    msg.reply("Added to queue.")
+                } else if (!playing && trackList.length > 0) {
+                    dispatcher = conn.play(await ytdl(trackList.shift()), { type: "opus" });
+                } else {
+                    dispatcher = conn.play(await ytdl(url), { type: "opus" });
+                }
+
+                dispatcher.on("finish", () => playing = false);
             };
 
             vc.join().then(vcn => play(vcn, query));
