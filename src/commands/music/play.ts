@@ -96,32 +96,28 @@ export default class PlayCommand extends Command {
     }
 
     processTracks = async (msg: Message, query: string) => {
-        console.log(query);
-
         const vc = msg.member.voice.channel;
         const guildQueue = queue.get(msg.guild.id);
+        const trackInfo = await ytdlc.getInfo(query);
+        const track = new Track(trackInfo.videoDetails.title, trackInfo.videoDetails.video_url);
 
-        await ytdlc.getInfo(query).then(async trackInfo => {
-            const track = new Track(trackInfo.videoDetails.title, trackInfo.videoDetails.video_url);
-
-            if (!guildQueue) {
-                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
-                queue.set(msg.guild.id, queueContract);
+        if (!guildQueue) {
+            const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
+            queue.set(msg.guild.id, queueContract);
     
-                queueContract.tracks.push(track);
+            queueContract.tracks.push(track);
     
-                try {
-                    queueContract.connection = await vc.join();
-                    await this.play(msg.guild, queueContract.tracks[0]);
-                } catch (e) {
-                   queue.delete(msg.guild.id);
-                  return msg.channel.send(e);
-                }
-            } else {
-                guildQueue.tracks.push(track);
-                return msg.reply(`**${track.title}** added to the queue.`);
+            try {
+                queueContract.connection = await vc.join();
+                await this.play(msg.guild, queueContract.tracks[0]);
+            } catch (e) {
+               queue.delete(msg.guild.id);
+               return msg.channel.send(e);
             }
-        });
+        } else {
+            guildQueue.tracks.push(track);
+             return msg.reply(`**${track.title}** added to the queue.`);
+        }
     }
 
     public exec = async (msg: Message, { query }: { query: string }) => {
@@ -134,8 +130,8 @@ export default class PlayCommand extends Command {
 
             await youtubeSearch(query, options, async (err, res) => {
                 if (err.message.startsWith("Error: Request failed with status code 403")) {
-                    await bYoutubeSearch.search(query).then(videos => 
-                        this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`));
+                    const videos = await bYoutubeSearch.search(query);
+                    return this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`);
                 } else return this.processTracks(msg, `https://www.youtube.com/watch?v=${res[0].id}`);
             });
         }
