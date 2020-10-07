@@ -3,6 +3,7 @@ import { Guild, Message, StreamDispatcher, TextChannel, VoiceChannel, VoiceConne
 import ytdld from "ytdl-core-discord";
 import ytdlc from "ytdl-core";
 import youtubeSearch from "youtube-search";
+import * as bYoutubeSearch from "youtube-search-without-api-key";
 import { config } from "dotenv";
 
 config({ "path": "../../../../.env" });
@@ -73,11 +74,15 @@ export default class PlayCommand extends Command {
         }
 
         guildQueue.dispatcher = guildQueue.connection.play(await ytdld(track.url), { type: "opus" })
-                                                     .on("finish", () => {
-                                                         guildQueue.tracks.shift();
-                                                         this.play(guild, guildQueue.tracks[0]);
-                                                     })
-                                                     .on("error", e => console.error(e));
+            .on("finish", () => {
+                guildQueue.tracks.shift();
+                this.play(guild, guildQueue.tracks[0]);
+            })
+            .on("error", e => {
+                console.error(e)
+                guildQueue.voiceChannel.leave();
+                guildQueue.textChannel.send("An unrecoverable error occurred.");
+             });
 
         
         guildQueue.dispatcher.setVolumeLogarithmic(guildQueue.volume / 5);
@@ -127,9 +132,11 @@ export default class PlayCommand extends Command {
                 key: process.env.API_KEY
             };
 
-            await youtubeSearch(query, options, (err, res) => {
-                if (err) console.log(err);
-                else return this.processTracks(msg, `https://www.youtube.com/watch?v=${res[0].id}`);
+            await youtubeSearch(query, options, async (err, res) => {
+                if (err.message.startsWith("Error: Request failed with status code 403")) {
+                    bYoutubeSearch.search(query).then(videos => 
+                        this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`));
+                } else return this.processTracks(msg, `https://www.youtube.com/watch?v=${res[0].id}`);
             });
         }
     }
