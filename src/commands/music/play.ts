@@ -3,9 +3,7 @@ import { Guild, Message, StreamDispatcher, TextChannel, VoiceChannel, VoiceConne
 import ytdld from "ytdl-core-discord";
 import ytdlc from "ytdl-core";
 import youtubeSearch from "youtube-search";
-import * as bYoutubeSearch from "youtube-search-without-api-key";
 import { config } from "dotenv";
-
 config({ "path": "../../../../.env" });
 
 export const queue: Map<string, QueueContract> = new Map();
@@ -123,8 +121,15 @@ export default class PlayCommand extends Command {
     public exec = async (msg: Message, { query }: { query: string }) => {
         if (this.isURL(query)) return await this.processTracks(msg, query);
         else {
-            const videos = await bYoutubeSearch.search(query);
-            return this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`);
+            const options: youtubeSearch.YouTubeSearchOptions = {
+                maxResults: 1,
+                key: process.env.API_KEY
+            };
+
+            await youtubeSearch(query, options, (err, res) => {
+                if (err) console.log(err);
+                else return this.processTracks(msg, `https://www.youtube.com/watch?v=${res[0].id}`);
+            });
         }
     }
 }
