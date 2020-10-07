@@ -2,6 +2,7 @@ import { Command } from "discord-akairo";
 import { Guild } from "discord.js";
 import { StreamDispatcher } from "discord.js";
 import { Message, VoiceConnection, TextChannel, VoiceChannel } from "discord.js";
+import * as yt from "youtube-search-without-api-key";
 const ytdl = require("ytdl-core-discord");
 
 export const queue: Map<string, QueueContract> = new Map();
@@ -19,21 +20,23 @@ class Track {
 class QueueContract {
     constructor(textChannel: TextChannel,
                 voiceChannel: VoiceChannel, 
-                connection: VoiceConnection, 
+                connection: VoiceConnection,
+                dispatcher: StreamDispatcher, 
                 tracks: Track[], 
                 volume: number, 
                 playing: boolean) {
         this.textChannel = textChannel;
         this.voiceChannel = voiceChannel;
         this.connection = connection;
+        this.dispatcher = dispatcher;
         this.tracks = tracks;
         this.volume = volume;
         this.playing = playing;
     }
-
     textChannel: TextChannel;
     voiceChannel: VoiceChannel;
     connection: VoiceConnection;
+    dispatcher: StreamDispatcher;
     tracks: Track[];
     volume: number;
     playing: boolean;
@@ -67,41 +70,59 @@ export default class PlayCommand extends Command {
             return;
         }
 
-        const dispatcher = guildQueue.connection.play(await ytdl(track.url), { type: "opus" })
-                                                .on("finish", () => {
-                                                    guildQueue.tracks.shift();
-                                                    this.play(guild, guildQueue.tracks[0]);
-                                                })
-                                                .on("error", e => console.error(e));
+        guildQueue.dispatcher = guildQueue.connection.play(await ytdl(track.url), { type: "opus" })
+                                                     .on("finish", () => {
+                                                         guildQueue.tracks.shift();
+                                                         this.play(guild, guildQueue.tracks[0]);
+                                                     })
+                                                     .on("error", e => console.error(e));
 
-        dispatcher.setVolumeLogarithmic(guildQueue.volume / 5);
+        
+        guildQueue.dispatcher.setVolumeLogarithmic(guildQueue.volume / 5);
         guildQueue.textChannel.send(`**Now playing:** ${track.title}`);
     }
 
     public exec = async (msg: Message, { query }: { query: string }) => {
-        const vc = msg.member.voice.channel;
-        const guildQueue = queue.get(msg.guild.id);
+        let isURL: boolean;
+        let queryURL: string;
 
-        const trackInfo = await ytdl.getInfo(query);
-        const track = new Track(trackInfo.title, trackInfo.video_url);
-
-        if (!guildQueue) {
-            const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, [], 5, true);
-            queue.set(msg.guild.id, queueContract);
-
-            queueContract.tracks.push(track);
-
-            try {
-                const conn = await vc.join();
-                queueContract.connection = conn;
-                this.play(msg.guild, queueContract.tracks[0]);
-            } catch (e) {
-                queue.delete(msg.guild.id);
-                return msg.channel.send(e);
+        try {
+            new URL(query);
+            isURL = true;
+        } catch (err) {
+            isURL = false;
+        } finally {
+            if (!isURL) {
+                const videos = yt.search(query);
+                queryURL = videos[0].snippet.url;
+            } else {
+                queryURL = queryURL;
             }
-        } else {
-            guildQueue.tracks.push(track);
-            return msg.reply(`*${track.title}* added to the queue.`);
+
+            const vc = msg.member.voice.channel;
+            const guildQueue = queue.get(msg.guild.id);
+
+            const trackInfo = await ytdl.getInfo(query);
+            const track = new Track(trackInfo.title, trackInfo.video_url);
+
+            if (!guildQueue) {
+                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
+                queue.set(msg.guild.id, queueContract);
+
+                queueContract.tracks.push(track);
+
+                try {
+                    const conn = await vc.join();
+                    queueContract.connection = conn;
+                    this.play(msg.guild, queueContract.tracks[0]);
+                } catch (e) {
+                    queue.delete(msg.guild.id);
+                    return msg.channel.send(e);
+                }
+            } else {
+                guildQueue.tracks.push(track);
+                return msg.reply(`**${track.title}** added to the queue.`);
+            }
         }
     }
 }
