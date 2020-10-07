@@ -82,47 +82,45 @@ export default class PlayCommand extends Command {
         guildQueue.textChannel.send(`**Now playing:** ${track.title}`);
     }
 
+    isURL = (str: string) => {
+        var urlRegex = '^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$';
+        var url = new RegExp(urlRegex, 'i');
+        return str.length < 2083 && url.test(str);
+    }
+
     public exec = async (msg: Message, { query }: { query: string }) => {
-        let isURL: boolean;
         let queryURL: string;
 
-        try {
-            new URL(query);
-            isURL = true;
-        } catch (err) {
-            isURL = false;
-        } finally {
-            if (!isURL) {
-                const videos = yt.search(query);
-                queryURL = videos[0].snippet.url;
-            } else {
-                queryURL = queryURL;
+        if (this.isURL(query)) {
+            const videos = await yt.search(query);
+            queryURL = videos[0].snippet.url;
+        } else {
+            queryURL = queryURL;
+        }
+
+        const vc = msg.member.voice.channel;
+        const guildQueue = queue.get(msg.guild.id);
+
+        const trackInfo = await ytdl.getInfo(query);
+        const track = new Track(trackInfo.title, trackInfo.video_url);
+
+        if (!guildQueue) {
+            const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
+            queue.set(msg.guild.id, queueContract);
+
+            queueContract.tracks.push(track);
+
+            try {
+                const conn = await vc.join();
+                queueContract.connection = conn;
+                this.play(msg.guild, queueContract.tracks[0]);
+            } catch (e) {
+                queue.delete(msg.guild.id);
+                return msg.channel.send(e);
             }
-
-            const vc = msg.member.voice.channel;
-            const guildQueue = queue.get(msg.guild.id);
-
-            const trackInfo = await ytdl.getInfo(query);
-            const track = new Track(trackInfo.title, trackInfo.video_url);
-
-            if (!guildQueue) {
-                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
-                queue.set(msg.guild.id, queueContract);
-
-                queueContract.tracks.push(track);
-
-                try {
-                    const conn = await vc.join();
-                    queueContract.connection = conn;
-                    this.play(msg.guild, queueContract.tracks[0]);
-                } catch (e) {
-                    queue.delete(msg.guild.id);
-                    return msg.channel.send(e);
-                }
-            } else {
-                guildQueue.tracks.push(track);
-                return msg.reply(`**${track.title}** added to the queue.`);
-            }
+        } else {
+            guildQueue.tracks.push(track);
+            return msg.reply(`**${track.title}** added to the queue.`);
         }
     }
 }
