@@ -91,36 +91,38 @@ export default class PlayCommand extends Command {
     public exec = async (msg: Message, { query }: { query: string }) => {
         let queryURL: string;
 
-        if (this.isURL(query)) {
-            const videos = await yt.search(query);
-            queryURL = videos[0].snippet.url;
-        } else {
-            queryURL = queryURL;
+        const postVerify = async () => {
+            const vc = msg.member.voice.channel;
+            const guildQueue = queue.get(msg.guild.id);
+
+            const trackInfo = await ytdl.getInfo(query);
+            const track = new Track(trackInfo.title, trackInfo.video_url);
+
+            if (!guildQueue) {
+                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
+                queue.set(msg.guild.id, queueContract);
+
+                queueContract.tracks.push(track);
+
+                try {
+                   const conn = await vc.join();
+                   queueContract.connection = conn;
+                    this.play(msg.guild, queueContract.tracks[0]);
+                } catch (e) {
+                   queue.delete(msg.guild.id);
+                  return msg.channel.send(e);
+                }
+            } else {
+                guildQueue.tracks.push(track);
+                return msg.reply(`**${track.title}** added to the queue.`);
+            }
         }
 
-        const vc = msg.member.voice.channel;
-        const guildQueue = queue.get(msg.guild.id);
-
-        const trackInfo = await ytdl.getInfo(query);
-        const track = new Track(trackInfo.title, trackInfo.video_url);
-
-        if (!guildQueue) {
-            const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
-            queue.set(msg.guild.id, queueContract);
-
-            queueContract.tracks.push(track);
-
-            try {
-                const conn = await vc.join();
-                queueContract.connection = conn;
-                this.play(msg.guild, queueContract.tracks[0]);
-            } catch (e) {
-                queue.delete(msg.guild.id);
-                return msg.channel.send(e);
-            }
+        if (this.isURL(query)) {
+            return yt.search(query).then(videos => queryURL = videos[0].snippet.url).finally(() => postVerify());
         } else {
-            guildQueue.tracks.push(track);
-            return msg.reply(`**${track.title}** added to the queue.`);
+            queryURL = queryURL;
+            return postVerify();
         }
     }
 }
