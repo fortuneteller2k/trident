@@ -7,16 +7,14 @@ export default class StatusCommand extends Command {
         super("status", { 
             aliases: ["status"],
             category: "utilities",
-            args: [
-                {
-                    id: "status",
-                    type: "string",
-                    match: "content",
-                    prompt: {
-                        start: () => `Specify new status. (\`online\`, \`idle\`, \`invisible\`, \`dnd\`)`
-                    }
+            args: [{
+                id: "status",
+                type: "string",
+                match: "content",
+                prompt: {
+                    start: () => `Specify new status. (\`online\`, \`idle\`, \`invisible\`, \`dnd\`)`
                 }
-            ]
+            }]
         })
     }
 
