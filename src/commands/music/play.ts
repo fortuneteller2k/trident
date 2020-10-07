@@ -1,7 +1,7 @@
 import { Command } from "discord-akairo";
 import { Message, VoiceConnection } from "discord.js";
 import http from "https";
-import ytdl from "ytdl-core-discord";
+const ytdl = require("ytdl-core-discord");
 
 export default class PlayCommand extends Command {
     public constructor() {
