@@ -18,6 +18,7 @@ export default class PlayCommand extends Command {
         });
     }
 
+    /* TODO: make search function
     public search = (query: string) => {
         const options = {
             hostname: `http://youtube-scrape.herokuapp.com/api/search?q=${query}&page=1`,
@@ -33,6 +34,7 @@ export default class PlayCommand extends Command {
         
         return url;
     }
+    */
 
     public exec = async (msg: Message, { query }: { query: string }) => {
         if (msg.channel.type === "dm") return;
@@ -41,28 +43,12 @@ export default class PlayCommand extends Command {
         if (!vc) {
             return msg.reply("Join a VC first!");
         } else {
-            let queryURL: string;
-            const isValidURL = () => {
-                try {
-                    new URL(query);
-                    queryURL = query;
-                    return true;
-                } catch {
-                    return false;
-                }  
-            }
-
             const play = async (conn: VoiceConnection , url: string) => {
                 const dispatcher = conn.play(await ytdl(url), { type: "opus" });
                 dispatcher.on("finish", () => vc.leave());
             };
 
-            vc.join().then(vcn => {
-                if (!isValidURL) {
-                    queryURL = this.search(query);
-                    play(vcn, queryURL);
-                } else play(vcn, queryURL);
-            });
+            vc.join().then(vcn => play(vcn, query));
         }
     }
 }
