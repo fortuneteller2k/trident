@@ -134,7 +134,7 @@ export default class PlayCommand extends Command {
 
             await youtubeSearch(query, options, async (err, res) => {
                 if (err.message.startsWith("Error: Request failed with status code 403")) {
-                    bYoutubeSearch.search(query).then(videos => 
+                    await bYoutubeSearch.search(query).then(videos => 
                         this.processTracks(msg, `https://www.youtube.com/watch?v=${videos[0].id}`));
                 } else return this.processTracks(msg, `https://www.youtube.com/watch?v=${res[0].id}`);
             });
