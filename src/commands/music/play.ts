@@ -100,7 +100,7 @@ export default class PlayCommand extends Command {
             const track = new Track(trackInfo.videoDetails.title, trackInfo.videoDetails.video_url);
 
             if (!guildQueue) {
-                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 10, true);
+                const queueContract: QueueContract = new QueueContract(<TextChannel>msg.channel, vc, null, null, [], 5, true);
                 queue.set(msg.guild.id, queueContract);
     
                 queueContract.tracks.push(track);
